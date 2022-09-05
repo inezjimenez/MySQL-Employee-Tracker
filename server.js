@@ -74,13 +74,42 @@ function menu() {
     })
 };
 
-//function needs to be called in order to start
+//function needs to be called, in order to start.
 menu();
 const viewAllEmployees = () => {
     db.employee()
     .then(([employee]) => {
         console.log.table(employee)
     }).then(() => menu());
+};
+
+const addEmployee = () => {
+    inquirer.prompt ([ 
+        {
+            type: 'input',
+            name: 'employee_firstName',
+            message: 'What is the first name of the employee?',
+        },
+        {
+            type: 'input',
+            name: 'employee_lastName',
+            message: 'What is the last name of this employee?',
+        },
+        {
+            type: 'input',
+            name: 'employee_role',
+            message: 'What role does this employee have in the company?',
+        },
+        {
+            type: 'input',
+            name: 'employee_manager',
+            message: 'Who is the manager of the employee?',
+        },
+    ])
+};
+
+const updateEmployeeRole = () => {
+    db.query('SELECT title, id FROM role')
 }
 
 
