@@ -1,5 +1,11 @@
-/*this is where we join the ids and create them together*/
-SELECT * FROM roles JOIN department ON roles.department_id = department.id;/*this is joining the department id to the roles table*/
+SELECT id, department_name AS department_name
+FROM department;
 
-/*this is joining the roles id to the employee table*/
-FROM employee JOIN roles ON employee.role_id = role.id;
+SELECT role.id, title, salary, department_name AS department
+FROM role
+INNER JOIN department ON role.department_id = department.id;
+
+SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, department.department_name AS department, employee.manager_id
+FROM employee
+INNER JOIN role ON employee.role_id = role.id
+INNER JOIN department ON role.department_id = department.id;

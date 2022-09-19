@@ -1,7 +1,7 @@
 const express = require('express');
-const { default: inquirer } = require('inquirer');
-//Import and require mysql2
-const mysql = require('mysql2');
+const inquirer = require('inquirer');
+//get the client
+const mysql = require('mysql');
 
 
 const PORT = process.env.PORT || 3001;
@@ -23,7 +23,9 @@ const db = mysql.createConnection(
 );
 module.exports = db;
 
-menu();
+app.listen(PORT, () => {
+    console.log('Web running on port 3001')
+});
 
 //prompt user for set options, using inquirer for prompts 
 function menu() {
@@ -40,9 +42,11 @@ function menu() {
             'Add Department', 
             'Update Employee Role', 
             'Quit']
-    }, ]).then(ans => {
-        console.log(ans);
-        switch (ans.addList) {
+    }, ]).then(function(result) {
+        // console.log(ans);
+        console.log("you entered: " + result.option);
+
+        switch (result.option) {
             case 'View All Employees':
                 viewAllEmployees();
                 break;
@@ -64,23 +68,27 @@ function menu() {
             case 'Add Department':
                 addDepartment();
                 break;
-            case 'Quit':
-                quit();
-                break;
-
             default:
-                break;            
+                console.log("Ending")
+                break;          
         }
-    })
+    });
 };
 
 //function needs to be called, in order to start.
 menu();
 const viewAllEmployees = () => {
-    db.employee()
-    .then(([employee]) => {
-        console.log.table(employee)
-    }).then(() => menu());
+    db.query('SELECT id, first_name, last_name FROM employee', function (err, results) {
+        console.log(results);
+        inquirer.prompt([{
+            type: 'list',
+            name: 'menuReturn',
+            message: 'Select return to go back to the main menu',
+            choices: ['return']
+        }]).then(function () {
+            menu()
+        })
+    })
 };
 
 const addEmployee = () => {
@@ -153,50 +161,47 @@ const updateEmployeeRole = () => {
     })
 };
 
-const viewAllRoles = () => {
-    db.role()
-    .then(([role]) => {
-        console.table(role);
-    }).then (() => menu());
+function viewAllRoles() {
+    //select from the db
+    let query = 'SELECT * FROM role';
+    connection.query(query, function(err, res) {
+        if (err) throw err;
+        console.table(res);
+        startScreen();
+    });
 };
 
+// Adding a new role
 const addRole = () => {
-    inquirer.prompt ([
-        {
-            type: 'input',
-            name: 'role_title',
-            message: 'What is the name of this role?',
-        },
-        {
-            type: 'input',
-            name: 'role_salary',
-            message: 'How much does this role pay?',
-        },
-        {
-            type: 'input',
-            name: 'role_department',
-            message: 'What department is this role found in?',
-        },
-    ]).then (ans => {
-        console.log(ans)
-        const roleTitle = ans.role_title;
-        const roleSalary = ans.role_salary;
-        const roleDepartment = ans.role_department;
+  inquirer.promt([
+    {
+        type: "input",
+        message: "What's the name of the role?",
+        name: 'roleName'
+    },
+    {
+        type: 'input',
+        message: "What is the salary for this role?",
+        name: 'salaryTotal'
+    },
+    {
+        type: 'input',
+        message: "what is the department id number?",
+        name: 'deptID'
+    }
+  ])
+  .then(function(answer) {
+    connection.query
+  })
 
-        db.addRole(roleTitle, roleSalary, roleDepartment)
-        .then(() => console.log (`Role ${roleTitle} added`))
-        .then(() => menu())
-    })
-};
-
-const viewAllDepartments = () => {
+const viewAllDepartments=() => {
     db.departments()
     .then(([departments]) => {
         console.table(departments);
     }).then(() => menu());
 };
 
-const addDepartment = () => {
+const addDepartment=() => {
     inquirer.prompt ([
         {
             type: 'input',
@@ -214,7 +219,6 @@ const addDepartment = () => {
 };
 
 const quit = () => {
-    process.exit()
-};
-
-
+    connection.end();
+    process.exit();
+}}

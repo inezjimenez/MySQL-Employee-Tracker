@@ -1,26 +1,26 @@
-
-USE employeeDB;
-
 INSERT INTO department
-(name)
+(department_name)
 VALUES
 ('Sales'),
 ('Support'),
 ('Marketing'),
-('Development');
+('Development'),
+('Administration');
 
-INSERT INTO role
+INSERT INTO roles
 (title, salary, department_id)
 VALUES
-('Sales Manager', 60000, 1),
-('Sales Associate', 40000, 1),
-('Support Manager', 65000, 2),
+('Sales Manager', '60000', 1),
+('Sales Associate', '40000', 2),
+('HR Rep', '50000',1),
+('Shipping Manager', '100000',4)
+('Support Manager', '65000', 3);
 
 INSERT INTO employee
 (first_name, last_name, role_id, manager_id)
-
 VALUES
-("Bob", "John", 1, NULL),
-("Terry", "Johnson", 2, 1),
-("Mike","Miller",3,2),
-
+('Kaysie', 'Anderson', 1, 1),
+('Temple', 'Kramer', 2, NULL),
+('Caitlin', 'Parsons', 3, NULL),
+('Josie', 'Sparling', 4, NULL),
+('Todd', 'Holley', 5, NULL);
