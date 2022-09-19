@@ -1,18 +1,21 @@
 const inquirer = require('inquirer')
-const cTable = require('console.table')
-const mysql = require('mysql')
+// const cTable = require('console.table')
+const mysql = require('mysql2')
 require('dotenv').config();
-// const db = require('/db')
-// const connection = require('connection.js')
+// const db = require('./db')
+// const connection = require('./db/connection')
+ 
 
 const connection = mysql.createConnection(
     {
-        host:'localhost',
-        user: 'root',
-        password: '',
-        database: 'company'
-    },
-    console.log('Connected to the company database.')
+        host: '127.0.0.1',
+        // your MySQL username,
+        user: process.env.DB_USER,
+        // your MySQL password
+        password: process.env.DB_PASSWORD,
+        database: 'company',
+        socketPath: '/tmp/mysql.sock'
+    }
 )
 
 connection.connect(function(err) {
@@ -21,8 +24,9 @@ connection.connect(function(err) {
     }
     console.log('connected to mysql server')
 })
+//console.log(connection)
+// Create an array of questions for user input
 
-//prompt user for set options, using inquirer for prompts 
 const userPrompt = () => {
     return inquirer
     .prompt([
@@ -37,12 +41,14 @@ const userPrompt = () => {
                 'Add a Department',
                 'Add a Role',
                 'Add an Employee',
-                'Update an Employee Role'
+                'Update an Employee Role',
+                'I want to exit the program'
             ]
         }
     ])
+
     .then ((answers) => {
-        let question = res.selection;
+        let question =  answers.selection;
         switch(question) {
             case 'View All Departments':
                 viewDepts()
@@ -65,105 +71,110 @@ const userPrompt = () => {
             case 'Update an Employee Role':
                 updateEmployeeRole()
                 break;
+            case 'I want to exit the program':
+                exitConnection()
+                break;
 
             default:
             process.exit();
         }
     })
-};
+}
+
+
 // view all departments
+
 viewDepts = () => {
-    const sql = `SELECT id, department_name AS department FROM department`;
-    connection.promise().query(sql)
-    .then ((rows) => {
-        console.table(rows[0])
-        userPrompt()
-    }) 
-    .catch((err) => {
-        if (err) {
-        throw err
-        }          
-    })       
-};
+        const sql = `SELECT id, department_name AS department FROM department`;
+        connection.promise().query(sql)
+        .then ((rows) => {
+            console.table(rows[0])
+            userPrompt()
+        }) 
+        .catch((err) => {
+            if (err) {
+            throw err
+            }          
+        })       
+}
 // view all roles
 viewRoles = () => {
-    const sql = `SELECT role.id, title, salary, department_name AS department
-    FROM role 
-    INNER JOIN department ON role.department_id = department.id`;
-    connection.promise().query(sql)
-    .then((rows)=> {
-        console.table(rows[0])
-        userPrompt()
-    })
-    .catch((err) => {
-        if (err) {
-        throw err
-        } 
-        
-     })  
-};
-// view all employees 
-viewEmployees = () => {
-const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary,
-department.department_name AS department, manager.first_name AS manager 
-FROM employee 
-LEFT JOIN role ON employee.role_id = role.id
-LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id` ;
-connection.promise().query(sql)
-    .then((rows) => {
-        console.table(rows[0])
-        userPrompt()
-    })
-    .catch((err) => {
-        if (err) {
-        throw err
-        } 
-        
-    })  
-};
-// add new dept
-addDept = () => {
-    inquirer.prompt([
-        {
-            type: "input",
-            name: "addDept",
-            message: "What is the name of the department?"
-        },
-    ])
-        .then ((answer) => {
-        const sql = `INSERT INTO department (department_name) VALUES (?)`;
-        connection.promise().query(sql, answer.addDept)
-        .then(()=> {
-            console.log(`${answer.addDept} department has been added`)
-            viewDepts()
+        const sql = `SELECT role.id, title, salary, department_name AS department
+        FROM role 
+        INNER JOIN department ON role.department_id = department.id`;
+        connection.promise().query(sql)
+        .then((rows)=> {
+            console.table(rows[0])
+            userPrompt()
         })
         .catch((err) => {
             if (err) {
             throw err
             } 
-    })      
-})
-};
+            
+         })  
+}
+// view all employees 
+viewEmployees = () => {
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary,
+    department.department_name AS department, manager.first_name AS manager 
+    FROM employee 
+    LEFT JOIN role ON employee.role_id = role.id
+    LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id` ;
+    connection.promise().query(sql)
+        .then((rows) => {
+            console.table(rows[0])
+            userPrompt()
+        })
+        .catch((err) => {
+            if (err) {
+            throw err
+            } 
+            
+        })  
+}
+// add new dept
+addDept = () => {
+    inquirer.prompt([
+            {
+                type: "input",
+                name: "addDept",
+                message: "What is the name of the department?"
+            },
+        ])
+            .then ((answer) => {
+            const sql = `INSERT INTO department (department_name) VALUES (?)`;
+            connection.promise().query(sql, answer.addDept)
+            .then(()=> {
+                console.log(`${answer.addDept} department has been added`)
+                viewDepts()
+            })
+            .catch((err) => {
+                if (err) {
+                throw err
+                } 
+        })      
+    })
+}
 // add new role 
 addRole = () => {
     inquirer.prompt ([ {
-        type: "input",
-        name: "addRole",
-        message: "What is the name of the role?"
-    },
+            type: "input",
+            name: "addRole",
+            message: "What is the name of the role?"
+        },
+        {
+            type: "input",
+            name: "addRoleSalary",
+            message: "What is the salary of the role?"
+        },
+        {
+            type: "input",
+            name: "addRoleDept",
+            message: "Which department does the role belong to?"
+        }
+    ])
 
-    {
-        type: "input",
-        name: "addRoleSalary",
-        message: "What is the salary of the role?"
-    },
-
-    {
-        type: "input",
-        name: "addRoleDept",
-        message: "Which department does the role belong to?"
-    }
-])
     .then((answer) => {
         const sql = `INSERT INTO role (title, salary, department_id) VALUES (?,?,?)`;
         const newValues = [answer.addRole, answer.addRoleSalary, answer.addRoleDept]
@@ -178,30 +189,29 @@ addRole = () => {
             }
     })
 
-})};
+})}
 // add new employee
 addEmployee = () => {
     inquirer.prompt([
         {
-            type: "input",
-            name: "addEmployeeFN",
-            message: "What is the employee's first name?"
+                type: "input",
+                name: "addEmployeeFN",
+                message: "What is the employee's first name?"
         },
         {
-            type: "input",
-            name: "addEmployeeLN",
-            message: "What is the employees's last name?"
+                type: "input",
+                name: "addEmployeeLN",
+                message: "What is the employees's last name?"
         },
         {
-            type: "input",
-            name: "addEmployeeRole",
-            message: "What is the employees's role?"
+                type: "input",
+                name: "addEmployeeRole",
+                message: "What is the employees's role?"
         },
-
         {
-            type: "input",
-            name: "addEmployeeManager",
-            message: "Who is the employees manager? Kaysie Anderson, Temple Kramer, Josie Sparling,  Caitlin Parsons, or Todd Holley"
+                type: "input",
+                name: "addEmployeeManager",
+                message: "Who is the employees manager?"
         }
     ])
     .then((answer) => {
@@ -209,16 +219,15 @@ addEmployee = () => {
         const newValues = [answer.addEmployeeFN, answer.addEmployeeLN, answer.addEmployeeRole, answer.addEmployeeManager]
         connection.promise().query(sql, newValues)
     .then(()=> {
-    console.log(`${answer.addEmployeeFN} ${answer.addEmployeeLN} has been added as an employee`)
-    viewEmployees()
-        })
-        .catch((err) => {
-            if (err) {
-            throw err
-            }
-        })
+        console.log(`${answer.addEmployeeFN} ${answer.addEmployeeLN} has been added as an employee`)
+        viewEmployees()
+            })
+            .catch((err) => {
+                if (err) {
+                throw err
+                }
+            })
     })
-
 };
 
 updateEmployeeRole = () => {
@@ -226,12 +235,12 @@ updateEmployeeRole = () => {
         {
             type: "input",
             name: "updateEmployeeRole",
-            message: "Which role do you want to assign the selected employee: HR Rep, Social Media Rep, Sales Rep, Shipping Manager, or Cashier?"
+            message: "Which role do you want to assign the selected employee:"
         },
         {
             type: "input",
             name: "updateEmployee",
-            message: "Which employee's role do you want to update: Kaysie Anderson, Temple Kramer, Josie Sparling, Caitlin Parsons, or Todd Holley"
+            message: "Which employee's role do you want to update:"
         }
     ])
     .then((answer) => {
@@ -248,6 +257,10 @@ updateEmployeeRole = () => {
             }
         })
     })
-};
+}
+
+exitConnection = () => {
+    connection.end()
+}
 
 userPrompt()
