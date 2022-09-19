@@ -19,6 +19,7 @@ CREATE TABLE role (
     department_id INTEGER,/*to hold reference to department role belongs to*/
     FOREIGN KEY (department_id)
     REFERENCES department(id)
+    ON DELETE SET NULL
 );
 
 /*Create employee*/
@@ -29,6 +30,7 @@ CREATE TABLE employee (
     role_id INTEGER,/*to hold reference to employee role*/
     manager_id INTEGER,/*to hold refernce to another employee 
     that is the manager of the current employee(null if the employee has no manager)*/
-    FOREIGN KEY (role_id)
-    REFERENCES role(id)
+    FOREIGN KEY (role_id) REFERENCES role(id),
+    FOREIGN KEY (manager_id) REFERENCES employee(id)
+    ON DELETE SET NULL
 );
