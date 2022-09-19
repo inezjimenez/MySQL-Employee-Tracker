@@ -1,4 +1,4 @@
-const mysql = require('mysql2')
+const mysql = require('mysql')
 
 //Connecting to database
 const connection = mysql.createConnection(
@@ -6,7 +6,8 @@ const connection = mysql.createConnection(
         host:'localhost',
         user: 'root',
         password: '',
-        database: 'company'
+        database: 'company',
+        socketPath: '/tmp/mysql.sock'
     },
     console.log('Connected to the company database.')
 )
