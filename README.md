@@ -28,6 +28,7 @@ To launch the application from the command line, navigate to the projects root d
 The application begins prompting the user to select one of the following: View all Departments, View all Roles, View all Employees, Add a department, Add a role, Add an Employee, Update an Employee Role.
 
 ### Project Demo
+![MySql-demo pic](https://user-images.githubusercontent.com/102685046/191087129-25384ec1-50b8-4585-8f1e-2bdc743678da.JPG)
 
 ### Credits
 * Tutors and peers
