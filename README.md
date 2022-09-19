@@ -1,6 +1,4 @@
 # MySQL-Employee-Tracker
-# MySQL-Employee-Tracker
-
 MySQL employee tracker is an application for users to be able to view and manage companys departments, roles, and employees.
 
 ## Table of Contents 
