@@ -1,6 +1,7 @@
 const inquirer = require('inquirer')
 const cTable = require('console.table')
 const mysql = require('mysql')
+require('dotenv').config();
 // const db = require('/db')
 // const connection = require('connection.js')
 
@@ -38,15 +39,102 @@ const userPrompt = () => {
                 'Add an Employee',
                 'Update an Employee Role'
             ]
-        },
-        // add department
+        }
+    ])
+    .then ((answers) => {
+        let question = res.selection;
+        switch(question) {
+            case 'View All Departments':
+                viewDepts()
+                break;
+            case 'View All Roles':
+                viewRoles()
+                break;
+            case 'View All Employees':
+                viewEmployees()
+                    break;
+            case 'Add a Department':
+                addDept()
+                break;
+            case 'Add a Role':
+                addRole()
+                 break;
+            case 'Add an Employee':
+                addEmployee()
+                break;
+            case 'Update an Employee Role':
+                updateEmployeeRole()
+                break;
+
+            default:
+            process.exit();
+        }
+    })
+}
+
+
+// view all departments
+
+viewDepts = () => {
+    const sql = 
+        `SELECT id, department_name AS department FROM department`;
+        connection.promise().query(sql, (err, rows) =>{
+            if (err) {
+            throw err
+            } 
+            console.table(rows)
+            userPrompt()
+    })
+        
+}
+
+// view all roles
+viewRoles = () => {
+    const sql = `SELECT role.id, title, salary, department_name AS department \
+        FROM role \
+        INNER JOIN department ON role.department_id = department.id`;
+        connection.promise().query(sql, (err, rows) =>{
+            if (err) {
+            throw err
+            } 
+            console.table(rows)
+            userPrompt()
+    })
+        
+} 
+
+// view all employees 
+viewEmployees = () => {
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary,
+    department.department_name AS department, manager.first_name AS manager 
+    FROM employee 
+    LEFT JOIN role ON employee.role_id = role.id
+    LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id` ;
+    connection.promise().query(sql, (err, rows) =>{
+        if (err) {
+        throw err
+        } 
+        console.table(rows)
+        userPrompt()
+    })
+}
+
+// add new dept
+addDept = () => {
+    inquirer.prompt([
         {
-            type: "input",
-            name: "addDepartment",
-            message: "What is the name of the department?"
+                type: "input",
+                name: "addDept",
+                message: "What is the name of the department?"
         },
-        // add role
-        {
+    ])
+        const sql = `INSERT INTO department (department_name) VALUES (?)`;
+    
+}
+
+// add new role 
+addRole = () => {
+    inquirer.prompt ([ {
             type: "input",
             name: "addRole",
             message: "What is the name of the role?"
@@ -58,13 +146,19 @@ const userPrompt = () => {
         },
         {
             type: "input",
-            name: "addRoleDepartment",
+            name: "addRoleDept",
             message: "Which department does the role belong to?"
-        },
-        // add employee
+        }
+    ])
+    const sql = `INSERT INTO role (title, salary, department_id) VALUES (?)`;
+}
+
+// add new employee
+addEmployee = () => {
+    inquirer.prompt([
         {
             type: "input",
-            name: "addEmployeeNameFirstName",
+            name: "addEmployeeFirstName",
             message: "What is the employee's first name?"
         },
         {
@@ -84,12 +178,17 @@ const userPrompt = () => {
             choices: [
                 "Carl Silva",
                 "Temple Kramer",
-                "Caitlin Parsons",
                 "Josie Sparling",
+                "Caitlin Parsons",
                 "Inez Jimenez"
             ]
-        },
-        // Update current employee
+        }
+    ])
+    const sql =  `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?)`;
+}
+
+updateEmployeeRole = () => {
+    inquirer.prompt([
         {
             type: "list",
             name: "updateEmployee",
@@ -97,8 +196,8 @@ const userPrompt = () => {
             choices: [
                 "Carl Silva",
                 "Temple Kramer",
-                "Caitlin Parsons",
                 "Josie Sparling",
+                "Caitlin Parsons",
                 "Inez Jimenez"
             ]
         },
@@ -107,96 +206,17 @@ const userPrompt = () => {
             name: "updateEmployeeRole",
             message: "Which role do you want to assign the selected employee?",
             choices: [
-               "Admin Assistant",
-               "Enginner",
-               "HR Rep",
-               "Sales Manager",
-               "Shipping Manager"
+                "Admin Assistant",
+                "Engineer",
+                "HR Rep",
+                "Sales Manager",
+                "Shipping Manager"
             ]
         }
     ])
-    .then ((res) => {
-        let order = res.selection;
-        switch(order) {
-            case 'View All Departments':
-                viewDeps()
-                break;
-            case 'View All Roles':
-                viewRoles()
-                break;
-            case 'View All Employees':
-                viewEmployess()
-                    break;
-            case 'Add a Department':
-                addDepartment()
-                break;
-            case 'Add a Role':
-                addRole()
-                 break;
-            case 'Add an Employee':
-                addEmployee()
-                break;
-            case 'Update an Employee Role':
-                updateRole()
-                break;
-
-            default:
-            process.exit();
-        }
-    })
-}
-
-// view all departments
-viewDepts = () => {
     const sql = 
-    `SELECT id, department_name AS department 
-    FROM department;
-    `
+    `UPDATE role SET WHERE`
 }
 
-// view all roles
-viewRoles = () => {
-    `const sql = SELECT role.id, title, salary, department_name AS department
-    FROM role
-    INNER JOIN department ON role.department_id = department.id;
-    //
-    `
-} 
-
-// view all employees 
-viewEmployees = () => {
-   `SELECT employee.id, employee.first_name, employee.last_name, role.title, role.salary, 
-   department.department_name AS department, manager.first_name AS manager
-   FROM employee
-   LEFT JOIN role ON employee.role_id = role.id
-   LEFT JOIN department ON role.department_id = department.id LEFT JOIN employee manager ON manager.id = employee.manager_id` 
-}
-
-
-// add new dept
-addDept = () => {
-    `INSERT INTO department
-    (department_name)
-    VALUES (?);`
-}
-
-// add new role 
-addRole = () => {
-    `INSERT INTO role 
-    (title, salary, department_id)
-    VALUES (?);`
-}
-
-addEmployee = () => {
-   ` INSERT INTO employee
-    (first_name, last_name, role_id, manager_id)
-    VALUES (?);`
-}
-
-updateRole = () => {
-    `UPDATE role
-    SET 
-    WHERE`
-}
 
 userPrompt()

@@ -1,4 +1,4 @@
-USE company;
+SET FOREIGN_KEY_CHECKS=0;
 
 INSERT INTO department
 (department_name)
@@ -9,7 +9,7 @@ VALUES
 ('Development'),
 ('Administration');
 
-INSERT INTO roles
+INSERT INTO role
 (title, salary, department_id)
 VALUES
 ('Sales Manager', '60000', 1),
