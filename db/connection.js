@@ -11,4 +11,11 @@ const connection = mysql.createConnection(
     console.log('Connected to the company database.')
 )
 
+connection.connect(function(err) {
+    if (err) {
+        return console.error('error: ' + err.message);
+    }
+    console.log('connected to mysql server')
+})
+
 module.exports = connection;
